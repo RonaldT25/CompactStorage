@@ -2,6 +2,7 @@ package com.tattyseal.compactstorage.util;
 
 import com.tattyseal.compactstorage.CompactStorage;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +23,44 @@ public class StorageInfo
 	private int sizeX;
 	private int sizeY;
 	private int hue;
+
+    private int pages;
+
 	private Type type;
 	
-	public StorageInfo(int sizeX, int sizeY, int hue, Type type)
+	public StorageInfo(int sizeX, int sizeY, int hue, int pages, Type type)
 	{
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.hue = hue;
+		this.pages = pages;
 		this.type = type;
 	}
+
+	public NBTTagCompound getTag()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("x", sizeX);
+        tag.setInteger("y", sizeY);
+        tag.setInteger("hue", hue);
+        tag.setInteger("pages", pages);
+        tag.setInteger("type", type.ordinal());
+
+        return tag;
+    }
+
+    public static StorageInfo fromTag(NBTTagCompound tag)
+    {
+        if(tag.hasKey("x") && tag.hasKey("y") && tag.hasKey("hue") && tag.hasKey("hue") && tag.hasKey("pages") && tag.hasKey("type"))
+        {
+            return new StorageInfo(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("hue"), tag.getInteger("pages"), Type.values()[tag.getInteger("type")]);
+        }
+        else
+        {
+            return new StorageInfo(9, 3, 180, 64, Type.CHEST);
+        }
+    }
 
 	public enum Type
 	{
@@ -68,7 +98,10 @@ public class StorageInfo
 		this.sizeY = sizeY;
 	}
 
-	public int getHue() { return hue; }
+	public int getHue()
+	{
+		return hue;
+	}
 
 	public void setHue(int hue)
 	{
@@ -84,6 +117,16 @@ public class StorageInfo
 	{
 		this.type = type;
 	}
+
+    public int getPages()
+    {
+        return pages;
+    }
+
+    public void setPages(int pages)
+    {
+        this.pages = pages;
+    }
 	
 	public List<ItemStack> getMaterialCost()
 	{

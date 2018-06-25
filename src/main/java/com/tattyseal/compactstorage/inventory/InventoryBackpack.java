@@ -31,15 +31,19 @@ public class InventoryBackpack implements IChest
     {
         this.stack = stack;
 
+        //TODO Implement Pages
+
+        int pages = 64;
+
         if(stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
         {
             this.size = stack.getTagCompound().getIntArray("size");
-            this.info = new StorageInfo(size[0], size[1], stack.getTagCompound().getInteger("hue"), StorageInfo.Type.BACKPACK);
+            this.info = new StorageInfo(size[0], size[1], stack.getTagCompound().getInteger("hue"), pages, StorageInfo.Type.BACKPACK);
         }
         else
         {
             this.size = new int[] {9, 3};
-            this.info = new StorageInfo(size[0], size[1], 180, StorageInfo.Type.BACKPACK);
+            this.info = new StorageInfo(size[0], size[1], 180, pages, StorageInfo.Type.BACKPACK);
             stack.setTagCompound(new NBTTagCompound());
             stack.getTagCompound().setIntArray("size", new int[] {9, 3});
         }

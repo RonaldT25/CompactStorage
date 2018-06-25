@@ -36,10 +36,8 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     public EnumFacing direction;
 
     public Color color;
-    public StorageInfo info;
 
-    public int invX;
-    public int invY;
+    public StorageInfo info;
 
     public boolean init;
 
@@ -54,7 +52,6 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     private boolean retaining;
     
     public ItemStack[] items;
-
     private String customName;
 
     public TileEntityChest()
@@ -63,8 +60,9 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
 
         this.retaining = false;
         this.direction = EnumFacing.NORTH;
+
+        this.info = new StorageInfo(9, 3, 180, 64, StorageInfo.Type.CHEST);
         this.items = new ItemStack[getSizeInventory()];
-        this.info = new StorageInfo(getInvX(), getInvY(), 180, StorageInfo.Type.CHEST);
 
         for(int i = 0; i < items.length; i++)
         {
@@ -76,11 +74,12 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     @Override
     public int getSizeInventory() 
     {
-        return invX * invY;
+        return (info.getSizeX() * info.getSizeY()) * info.getPages();
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return false;
     }
 
@@ -245,10 +244,14 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     /* CUSTOM START */
     
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(NBTTagCompound tag)
+    {
         super.readFromNBT(tag);
 
-        if (tag.hasKey("facing")) this.direction = EnumFacing.getFront(tag.getInteger("facing"));
+        if (tag.hasKey("facing"))
+        {
+            this.direction = EnumFacing.getFront(tag.getInteger("facing"));
+        }
 
         this.retaining = tag.hasKey("retaining") && tag.getBoolean("retaining");
 
@@ -288,8 +291,14 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
             }
         }
 
-        this.invX = tag.getInteger("invX");
-        this.invY = tag.getInteger("invY");
+        if(tag.hasKey("info"))
+        {
+            this.info = StorageInfo.fromTag(tag.getCompoundTag("info"));
+        }
+        else
+        {
+            this.info = new StorageInfo(tag.getInteger("invX"), tag.getInteger("invY"), info.getHue(), 1, StorageInfo.Type.CHEST);
+        }
 
         NBTTagList nbtTagList = tag.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         items = new ItemStack[getSizeInventory()];
@@ -315,10 +324,12 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     {
         super.writeToNBT(tag);
 
-        if(direction != null) tag.setInteger("facing", direction.ordinal());
-        tag.setInteger("hue", info.getHue());
-        tag.setInteger("invX", invX);
-        tag.setInteger("invY", invY);
+        if(direction != null)
+        {
+            tag.setInteger("facing", direction.ordinal());
+        }
+
+        tag.setTag("info", info.getTag());
         tag.setBoolean("retaining", retaining);
 
         NBTTagList nbtTagList = new NBTTagList();
@@ -465,13 +476,13 @@ public class TileEntityChest extends TileEntity implements IInventory, IChest, I
     @Override
     public int getInvX()
     {
-        return invX;
+        return info.getSizeX();
     }
 
     @Override
     public int getInvY()
     {
-        return invY;
+        return info.getSizeY();
     }
 
     @Override

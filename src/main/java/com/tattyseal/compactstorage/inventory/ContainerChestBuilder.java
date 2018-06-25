@@ -159,7 +159,7 @@ public class ContainerChestBuilder extends Container
     @Override
     public void updateProgressBar(int id, int value)
     {
-    	if(chest.info == null) chest.info = new StorageInfo(9, 3, 180, StorageInfo.Type.CHEST);
+    	if(chest.info == null) chest.info = new StorageInfo(9, 3, 180, 64, StorageInfo.Type.CHEST);
 
         switch(id)
         {

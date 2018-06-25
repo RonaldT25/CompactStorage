@@ -31,7 +31,7 @@ public class TileEntityChestBuilder extends TileEntity implements IInventory, IT
 	public TileEntityChestBuilder()
 	{
 		init = false;
-		info = new StorageInfo(9, 3, 180, StorageInfo.Type.CHEST);
+		info = new StorageInfo(9, 3, 180, 64, StorageInfo.Type.CHEST);
 		items = new ItemStack[getSizeInventory()];
 
 		for(int i = 0; i < items.length; i++)
@@ -76,10 +76,7 @@ public class TileEntityChestBuilder extends TileEntity implements IInventory, IT
 	{
 		super.writeToNBT(tag);
 
-		tag.setInteger("infoX", info.getSizeX());
-		tag.setInteger("infoY", info.getSizeY());
-		tag.setInteger("infoHue", info.getHue());
-		tag.setInteger("type", info.getType().ordinal());
+		tag.setTag("info", info.getTag());
 
 		NBTTagList nbtTagList = new NBTTagList();
         for(int slot = 0; slot < getSizeInventory(); slot++)
@@ -107,7 +104,14 @@ public class TileEntityChestBuilder extends TileEntity implements IInventory, IT
 	{
 		super.readFromNBT(tag);
 
-		this.info = new StorageInfo(tag.getInteger("infoX"), tag.getInteger("infoY"), tag.getInteger("hue"), StorageInfo.Type.values()[tag.getInteger("type")]);
+		if(tag.hasKey("info"))
+		{
+			this.info = StorageInfo.fromTag(tag.getCompoundTag("info"));
+		}
+		else
+		{
+			this.info = new StorageInfo(tag.getInteger("infoX"), tag.getInteger("infoY"), tag.getInteger("hue"), 1, StorageInfo.Type.values()[tag.getInteger("type")]);
+		}
 
 		this.mode = tag.getInteger("mode");
 		this.player = tag.getString("player");

@@ -22,7 +22,7 @@ public class C02PacketCraftChest implements IMessage
 		this.z = 0;
 
 		this.dimension = 0;
-		this.info = new StorageInfo(0, 0, 180, StorageInfo.Type.CHEST);
+		this.info = new StorageInfo(0, 0, 180, 64, StorageInfo.Type.CHEST);
 	}
 	
 	public C02PacketCraftChest(BlockPos pos, int dim, StorageInfo info)
@@ -44,7 +44,7 @@ public class C02PacketCraftChest implements IMessage
 		
 		dimension = buf.readInt();
 
-		info = new StorageInfo(buf.readInt(), buf.readInt(), buf.readInt(), StorageInfo.Type.values()[buf.readInt()]);
+		info = new StorageInfo(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), StorageInfo.Type.values()[buf.readInt()]);
 	}
 
 	@Override
@@ -59,6 +59,7 @@ public class C02PacketCraftChest implements IMessage
 		buf.writeInt(info.getSizeX());
 		buf.writeInt(info.getSizeY());
 		buf.writeInt(info.getHue());
+		buf.writeInt(info.getPages());
 		buf.writeInt(info.getType().ordinal());
 	}
 }

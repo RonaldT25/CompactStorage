@@ -1,6 +1,7 @@
 package com.tattyseal.compactstorage.item;
 
 import com.tattyseal.compactstorage.CompactStorage;
+import com.tattyseal.compactstorage.util.StorageInfo;
 import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -35,8 +36,7 @@ public class ItemBlockChest extends ItemBlock
 			ItemStack stack = new ItemStack(this, 1);
 
 			NBTTagCompound tag = new NBTTagCompound();
-			tag.setIntArray("size", new int[] {9, 3});
-			tag.setInteger("hue", 180);
+			tag.setTag("info", new StorageInfo(9, 3, -1, 1, StorageInfo.Type.CHEST).getTag());
 
 			stack.setTagCompound(tag);
 			items.add(stack);
@@ -46,51 +46,18 @@ public class ItemBlockChest extends ItemBlock
     @Override
     public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn)
     {
-    	if(stack.hasTagCompound())
+    	if(stack.hasTagCompound() && stack.getTagCompound().hasKey("info"))
     	{
-			if(stack.getTagCompound().getTag("size") instanceof NBTTagIntArray)
+    		StorageInfo info = StorageInfo.fromTag(stack.getTagCompound().getCompoundTag("info"));
+			list.add(TextFormatting.GREEN + "Slots: " + (info.getSizeX() * info.getSizeY()));
+			list.add(TextFormatting.GREEN + "Pages: " + (info.getPages()));
+			list.add(TextFormatting.AQUA + (info.getHue() == -1 ? "White" : "Hue: " + info.getHue()));
+
+			if(stack.getTagCompound().hasKey("chestData"))
 			{
-				int size = stack.getTagCompound().getIntArray("size")[0] * stack.getTagCompound().getIntArray("size")[1];
-				list.add(TextFormatting.GREEN + "Slots: " + size);
-			}
-    		else
-    		{
-    			int size = 27;
-    			list.add(TextFormatting.GREEN + "Slots: " + size);
-    			list.add(TextFormatting.RED + "Yep. You broke it.");
-
-                stack.getTagCompound().setIntArray("size", new int[] {9, 3});
-
-				UsefulFunctions.dump("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
-    		}
-
-
-			if(stack.getTagCompound().hasKey("hue"))
-			{
-				int hue = stack.getTagCompound().getInteger("hue");
-
-				if(hue != -1)
-				{
-					list.add(TextFormatting.AQUA + "Hue: " + hue);
-				}
-				else
-				{
-					list.add(TextFormatting.AQUA + "White");
-				}
-			}
-
-			if(stack.getTagCompound().hasKey("chestData") && stack.getTagCompound().getCompoundTag("chestData").hasKey("retaining") && stack.getTagCompound().getCompoundTag("chestData").getBoolean("retaining"))
-			{
+				list.add("");
 				list.add(TextFormatting.AQUA + "" + TextFormatting.ITALIC + "Retaining");
 			}
-			else
-			{
-				list.add(TextFormatting.RED + "" + TextFormatting.ITALIC + "Non-Retaining");
-			}
-    	}
-    	else
-    	{
-    		list.add(TextFormatting.RED + "Slots: none");
     	}
     	
     	super.addInformation(stack, worldIn, list, flagIn);

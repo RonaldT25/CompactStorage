@@ -24,7 +24,7 @@ public class GuiChestBuilderResponder implements GuiPageButtonList.GuiResponder
     @Override
     public void setEntryValue(int id, float value)
     {
-        StorageInfo info = new StorageInfo(gui.builder.info.getSizeX(), gui.builder.info.getSizeY(), gui.builder.info.getHue(), gui.builder.info.getType());
+        StorageInfo info = new StorageInfo(gui.builder.info.getSizeX(), gui.builder.info.getSizeY(), gui.builder.info.getHue(), gui.builder.info.getPages(), gui.builder.info.getType());
 
         switch(id)
         {
@@ -43,6 +43,12 @@ public class GuiChestBuilderResponder implements GuiPageButtonList.GuiResponder
             case 2:
             {
                 info.setHue((int) MathHelper.clamp(value, -1, 360));
+                CompactStorage.instance.wrapper.sendToServer(new C01PacketUpdateBuilder(gui.pos, gui.builder.dimension, info));
+                break;
+            }
+            case 3:
+            {
+                info.setPages((int) MathHelper.clamp(value, 1, 64));
                 CompactStorage.instance.wrapper.sendToServer(new C01PacketUpdateBuilder(gui.pos, gui.builder.dimension, info));
                 break;
             }

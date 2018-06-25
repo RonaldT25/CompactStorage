@@ -2,6 +2,7 @@ package com.tattyseal.compactstorage.block;
 
 import com.tattyseal.compactstorage.CompactStorage;
 import com.tattyseal.compactstorage.tileentity.TileEntityChest;
+import com.tattyseal.compactstorage.util.StorageInfo;
 import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -83,73 +84,79 @@ public class BlockChest extends Block implements ITileEntityProvider
             return;
         }
 
-        if (stack.hasDisplayName()) {
+        if (stack.hasDisplayName())
+        {
             chest.setCustomName(stack.getDisplayName());
         }
 
         chest.direction = UsefulFunctions.get2dOrientation(entity);
-        
-        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
+
+        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("info"))
         {
-        	if(stack.getTagCompound().getTag("size") instanceof NBTTagIntArray)
-        	{
-                chest.invX = stack.getTagCompound().getIntArray("size")[0];
-                chest.invY = stack.getTagCompound().getIntArray("size")[1];
-
-                if(stack.getTagCompound().hasKey("hue"))
-                {
-                    chest.setHue(stack.getTagCompound().getInteger("hue"));
-                    chest.color = chest.getHue() == -1 ? Color.white : Color.getHSBColor(stack.getTagCompound().getInteger("hue"), 50, 50);
-                }
-                else if(stack.getTagCompound().hasKey("color") && !stack.getTagCompound().hasKey("hue"))
-                {
-                    String color = stack.getTagCompound().getString("color");
-
-                    if(color.startsWith("0x"))
-                    {
-                        color = "#" + color.substring(2);
-                    }
-
-                    chest.color = color.equals("") ? Color.white : Color.decode(color);
-
-                    float[] hsbVals = new float[3];
-                    hsbVals = Color.RGBtoHSB(chest.color.getRed(), chest.color.getGreen(), chest.color.getBlue(), hsbVals);
-                    chest.setHue((int) hsbVals[0] * 360);
-                }
-                else
-                {
-                    chest.color = Color.white;
-                }
-
-                chest.items = new ItemStack[chest.invX * chest.invY];
-        	}
-        	else
-        	{
-        		if(entity instanceof EntityPlayer)
-        		{
-        			entity.sendMessage(new TextComponentString(TextFormatting.RED + "You attempted something bad! :("));
-
-                    chest.invX = 9;
-                    chest.invY = 3;
-                    chest.items = new ItemStack[chest.invX * chest.invY];
-                    chest.setHue(180);
-                    chest.color = Color.white;
-
-        			UsefulFunctions.dump("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
-        		}
-        	}
+            chest.info = StorageInfo.fromTag(stack.getTagCompound().getCompoundTag("info"));
+            chest.color = chest.getHue() == -1 ? Color.white : Color.getHSBColor(chest.info.getHue(), 50, 50);
+            chest.items = new ItemStack[chest.info.getSizeX() * chest.info.getSizeY()];
         }
         else
         {
-            if(entity instanceof EntityPlayer)
+            if(stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
             {
-                entity.sendMessage(new TextComponentString(TextFormatting.RED + "You attempted something bad! :("));
+                if(stack.getTagCompound().getTag("size") instanceof NBTTagIntArray)
+                {
+                    chest.info.setSizeX(stack.getTagCompound().getIntArray("size")[0]);
+                    chest.info.setSizeY(stack.getTagCompound().getIntArray("size")[1]);
 
-                chest.invX = 9;
-                chest.invY = 3;
-                chest.items = new ItemStack[chest.invX * chest.invY];
-                chest.setHue(180);
-                chest.color = Color.white;
+                    if(stack.getTagCompound().hasKey("hue"))
+                    {
+                        chest.setHue(stack.getTagCompound().getInteger("hue"));
+                        chest.color = chest.getHue() == -1 ? Color.white : Color.getHSBColor(stack.getTagCompound().getInteger("hue"), 50, 50);
+                    }
+                    else if(stack.getTagCompound().hasKey("color") && !stack.getTagCompound().hasKey("hue"))
+                    {
+                        String color = stack.getTagCompound().getString("color");
+
+                        if(color.startsWith("0x"))
+                        {
+                            color = "#" + color.substring(2);
+                        }
+
+                        chest.color = color.equals("") ? Color.white : Color.decode(color);
+
+                        float[] hsbVals = new float[3];
+                        hsbVals = Color.RGBtoHSB(chest.color.getRed(), chest.color.getGreen(), chest.color.getBlue(), hsbVals);
+                        chest.setHue((int) hsbVals[0] * 360);
+                    }
+                    else
+                    {
+                        chest.color = Color.white;
+                    }
+
+                    chest.items = new ItemStack[chest.info.getSizeX() * chest.info.getSizeY()];
+                }
+                else
+                {
+                    if(entity instanceof EntityPlayer)
+                    {
+                        entity.sendMessage(new TextComponentString(TextFormatting.RED + "You attempted something bad! :("));
+
+                        chest.items = new ItemStack[chest.getInvX() * chest.getInvY()];
+                        chest.setHue(180);
+                        chest.color = Color.white;
+
+                        UsefulFunctions.dump("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
+                    }
+                }
+            }
+            else
+            {
+                if(entity instanceof EntityPlayer)
+                {
+                    entity.sendMessage(new TextComponentString(TextFormatting.RED + "You attempted something bad! :("));
+
+                    chest.items = new ItemStack[chest.getInvX() * chest.getInvY()];
+                    chest.setHue(180);
+                    chest.color = Color.white;
+                }
             }
         }
 
@@ -211,7 +218,6 @@ public class BlockChest extends Block implements ITileEntityProvider
     @Override
     public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state)
     {
-        UsefulFunctions.dump("breakBlock()");
         TileEntityChest chest = (TileEntityChest) world.getTileEntity(pos);
 
         if(chest != null)
@@ -221,16 +227,7 @@ public class BlockChest extends Block implements ITileEntityProvider
 
             stack.setTagCompound(new NBTTagCompound());
 
-            int invX = chest.invX;
-            int invY = chest.invY;
-            int hue = chest.getHue();
-            int color = chest.color.getRGB();
-
-            String colorString = String.format("0x%06X", (0xFFFFFF & color));
-
-            stack.getTagCompound().setIntArray("size", new int[]{invX, invY});
-            stack.getTagCompound().setString("color", colorString);
-            stack.getTagCompound().setInteger("hue", hue);
+            stack.getTagCompound().setTag("info", chest.info.getTag());
 
             if(chest.getRetaining())
             {
@@ -270,13 +267,14 @@ public class BlockChest extends Block implements ITileEntityProvider
         TileEntityChest chest = (TileEntityChest) world.getTileEntity(pos);
 
         stack.setTagCompound(new NBTTagCompound());
-        stack.getTagCompound().setIntArray("size", new int[] {chest.invX, chest.invY});
+        stack.getTagCompound().setTag("info", chest.info.getTag());
 
         return stack;
     }
 
     @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+    public Item getItemDropped(IBlockState state, Random rand, int fortune)
+    {
         return null;
     }
 }

@@ -73,26 +73,19 @@ public class C02HandlerCraftChest implements IMessageHandler<C02PacketCraftChest
 					}
 				}
 
-				UsefulFunctions.dump("HAS REQ MATS: " + hasRequiredMaterials);
-
 				if(hasRequiredMaterials && builder.getStackInSlot(4).isEmpty())
 				{
 					ItemStack stack = new ItemStack(message.info.getType().equals(StorageInfo.Type.BACKPACK) ? CompactStorage.ModItems.backpack : ItemBlock.getItemFromBlock(CompactStorage.ModBlocks.chest), 1);
 
 					NBTTagCompound tag = new NBTTagCompound();
-					tag.setIntArray("size", new int[]{message.info.getSizeX(), message.info.getSizeY()});
-					tag.setInteger("hue", message.info.getHue());
+					tag.setTag("info", message.info.getTag());
 					stack.setTagCompound(tag);
 
 					builder.setInventorySlotContents(4, stack);
 
-					UsefulFunctions.dump("SPAWNED ITEM ENTITY");
-
 					for(int x = 0; x < requiredItems.size(); x++)
 					{
 						builder.decrStackSize(x, requiredItems.get(x).getCount());
-
-						UsefulFunctions.dump("DECREASED ITEMS IN INVENTORY");
 					}
 
 					world.playSound(null, builder.getPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT, 1, 1);

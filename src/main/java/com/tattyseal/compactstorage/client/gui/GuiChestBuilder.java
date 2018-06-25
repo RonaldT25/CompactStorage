@@ -109,7 +109,7 @@ public class GuiChestBuilder extends GuiContainer
             {
                 if(y >= startY && y <= endY)
                 {
-                    StorageInfo info = new StorageInfo(builder.info.getSizeX(), builder.info.getSizeY(), builder.info.getHue(), type);
+                    StorageInfo info = new StorageInfo(builder.info.getSizeX(), builder.info.getSizeY(), builder.info.getHue(), builder.info.getPages(), type);
                     CompactStorage.instance.wrapper.sendToServer(new C01PacketUpdateBuilder(pos, builder.dimension, info));
                 }
             }
@@ -264,7 +264,7 @@ public class GuiChestBuilder extends GuiContainer
     public void actionPerformed(GuiButton button) throws IOException
     {
         super.actionPerformed(button);
-        StorageInfo info = new StorageInfo(builder.info.getSizeX(), builder.info.getSizeY(), builder.info.getHue(), builder.info.getType());
+        StorageInfo info = new StorageInfo(builder.info.getSizeX(), builder.info.getSizeY(), builder.info.getHue(), builder.info.getPages(), builder.info.getType());
 
         switch(button.id)
         {

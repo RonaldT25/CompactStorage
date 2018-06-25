@@ -86,37 +86,44 @@ public class UsefulFunctions
     {
         NBTTagCompound tag = stack.getTagCompound();
 
-        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("hue"))
+        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("info"))
         {
-            int hue = stack.getTagCompound().getInteger("hue");
-            return getColorFromHue(hue);
+            return getColorFromHue(StorageInfo.fromTag(stack.getTagCompound().getCompoundTag("info")).getHue());
         }
-
-        if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("hue") && stack.getTagCompound().hasKey("color"))
+        else
         {
-            String color = "";
-
-            if(tag.getTag("color") instanceof NBTTagInt)
+            if(stack.hasTagCompound() && stack.getTagCompound().hasKey("hue"))
             {
-                color = String.format("#%06X", (0xFFFFFF & tag.getInteger("color")));
+                int hue = stack.getTagCompound().getInteger("hue");
+                return getColorFromHue(hue);
             }
-            else
-            {
-                color = tag.getString("color");
 
-                if(color.startsWith("0x"))
+            if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("hue") && stack.getTagCompound().hasKey("color"))
+            {
+                String color = "";
+
+                if(tag.getTag("color") instanceof NBTTagInt)
                 {
-                    color = "#" + color.substring(2);
+                    color = String.format("#%06X", (0xFFFFFF & tag.getInteger("color")));
                 }
-            }
+                else
+                {
+                    color = tag.getString("color");
 
-            if(!color.isEmpty())
-            {
-                Color c = Color.decode(color);
-                float[] hsbVals = new float[3];
+                    if(color.startsWith("0x"))
+                    {
+                        color = "#" + color.substring(2);
+                    }
+                }
 
-                hsbVals = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsbVals);
-                tag.setInteger("hue", (int) (hsbVals[0] * 360));
+                if(!color.isEmpty())
+                {
+                    Color c = Color.decode(color);
+                    float[] hsbVals = new float[3];
+
+                    hsbVals = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsbVals);
+                    tag.setInteger("hue", (int) (hsbVals[0] * 360));
+                }
             }
         }
 

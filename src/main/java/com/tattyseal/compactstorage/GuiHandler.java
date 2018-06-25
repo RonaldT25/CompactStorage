@@ -8,6 +8,7 @@ import com.tattyseal.compactstorage.inventory.ContainerChestBuilder;
 import com.tattyseal.compactstorage.inventory.InventoryBackpack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -33,13 +34,19 @@ public class GuiHandler implements IGuiHandler
                 // chest or backpack
                 IChest chest;
 
-                if(player.getHeldItem(EnumHand.MAIN_HAND).getItem().equals(CompactStorage.ModItems.backpack))
+                TileEntity entity = world.getTileEntity(pos);
+
+                if (entity instanceof IChest)
+                {
+                    chest = (IChest)entity;
+                }
+                else if (player.getHeldItem(EnumHand.MAIN_HAND).getItem().equals(CompactStorage.ModItems.backpack))
                 {
                     chest = new InventoryBackpack(player.getHeldItem(EnumHand.MAIN_HAND));
                 }
                 else
                 {
-                    chest = (IChest) world.getTileEntity(pos);
+                    return null;
                 }
 
                 return new ContainerChest(world, chest, player, pos);
@@ -61,13 +68,20 @@ public class GuiHandler implements IGuiHandler
                  // chest or backpack
                 IChest chest;
 
-                if(player.getHeldItem(EnumHand.MAIN_HAND).getItem() == CompactStorage.ModItems.backpack)
+
+                TileEntity entity = world.getTileEntity(pos);
+
+                if (entity instanceof IChest)
+                {
+                    chest = (IChest)entity;
+                }
+                else if (player.getHeldItem(EnumHand.MAIN_HAND).getItem().equals(CompactStorage.ModItems.backpack))
                 {
                     chest = new InventoryBackpack(player.getHeldItem(EnumHand.MAIN_HAND));
                 }
                 else
                 {
-                    chest = (IChest) world.getTileEntity(pos);
+                    return null;
                 }
 
                 return new GuiChest((Container) getServerGuiElement(ID, player, world, x, y, z), chest, world, player, pos);

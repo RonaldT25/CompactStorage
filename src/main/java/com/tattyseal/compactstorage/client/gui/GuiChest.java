@@ -4,6 +4,7 @@ import com.tattyseal.compactstorage.inventory.IChest;
 import com.tattyseal.compactstorage.inventory.InventoryBackpack;
 import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -32,6 +33,9 @@ public class GuiChest extends GuiContainer
     private KeyBinding[] HOTBAR;
     private int backpackSlot;
 
+    private GuiButton nextPage;
+    private GuiButton previousPage;
+
     
     public GuiChest(Container container, IChest chest, World world, EntityPlayer player, BlockPos pos)
     {
@@ -59,7 +63,26 @@ public class GuiChest extends GuiContainer
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void initGui()
+    {
+        super.initGui();
+
+        nextPage = new GuiButton(0, guiLeft + xSize + 2,  guiTop + 2, 20, 20, ">");
+        previousPage = new GuiButton(1, guiLeft + xSize + 2,  guiTop + 24, 20, 20, "<");
+
+        buttonList.add(nextPage);
+        buttonList.add(previousPage);
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        super.updateScreen();
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
@@ -96,7 +119,14 @@ public class GuiChest extends GuiContainer
 
         GL11.glPopMatrix();
     }
-    
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        super.actionPerformed(button);
+
+    }
+
     @Override
     protected void keyTyped(char c, int id)  throws IOException
     {

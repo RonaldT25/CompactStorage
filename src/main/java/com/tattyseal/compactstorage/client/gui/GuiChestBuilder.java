@@ -1,15 +1,15 @@
 package com.tattyseal.compactstorage.client.gui;
 
 import com.tattyseal.compactstorage.CompactStorage;
-import com.tattyseal.compactstorage.client.gui.elements.GuiSliderHue;
 import com.tattyseal.compactstorage.client.gui.responder.GuiChestBuilderResponder;
 import com.tattyseal.compactstorage.client.gui.slider.ColumnFormatType;
+import com.tattyseal.compactstorage.client.gui.slider.GuiSliderHue;
 import com.tattyseal.compactstorage.client.gui.slider.HueFormatType;
 import com.tattyseal.compactstorage.client.gui.slider.RowFormatType;
 import com.tattyseal.compactstorage.network.packet.C01PacketUpdateBuilder;
 import com.tattyseal.compactstorage.network.packet.C02PacketCraftChest;
 import com.tattyseal.compactstorage.tileentity.TileEntityChestBuilder;
-import com.tattyseal.compactstorage.util.RenderUtil;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import com.tattyseal.compactstorage.util.StorageInfo;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiSlider;
@@ -38,7 +38,7 @@ public class GuiChestBuilder extends GuiContainer
     public World world;
     public EntityPlayer player;
     public BlockPos pos;
-    
+
     private GuiButton buttonSubmit;
 
     private GuiSlider hueSlider;
@@ -48,7 +48,7 @@ public class GuiChestBuilder extends GuiContainer
     public TileEntityChestBuilder builder;
 
     private static final ResourceLocation CREATIVE_INVENTORY_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
-    
+
     public GuiChestBuilder(Container container, World world, EntityPlayer player, BlockPos pos)
     {
         super(container);
@@ -56,18 +56,18 @@ public class GuiChestBuilder extends GuiContainer
         this.world = world;
         this.player = player;
         this.pos = pos;
-        
+
         this.builder = ((TileEntityChestBuilder) world.getTileEntity(pos));
 
         this.xSize = 7 + 162 + 7;
         this.ySize = 7 + 108 + 13 + 54 + 4 + 18 + 7;
     }
-    
+
     @Override
     public void initGui()
     {
         super.initGui();
-        
+
         buttonSubmit = new GuiButton(4, guiLeft + 5, guiTop + 8 + 108 - 14, xSize - 31, 20, "Build");
         buttonList.add(buttonSubmit);
 
@@ -115,18 +115,18 @@ public class GuiChestBuilder extends GuiContainer
             }
         }
     }
-    
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float k)
     {
         this.drawDefaultBackground();
-    	super.drawScreen(mouseX, mouseY, k);
+        super.drawScreen(mouseX, mouseY, k);
 
         if(builder != null && builder.info != null)
-    	{
+        {
             boolean hoverTooltip = false;
 
-    		for(int x = 0; x < 4; x++)
+            for(int x = 0; x < 4; x++)
             {
                 if(x < builder.info.getMaterialCost().size() && builder.info.getMaterialCost().get(x) != null)
                 {
@@ -183,14 +183,14 @@ public class GuiChestBuilder extends GuiContainer
             }
 
             if (!hoverTooltip) {
-    		    this.renderHoveredToolTip(mouseX, mouseY);
+                this.renderHoveredToolTip(mouseX, mouseY);
             }
-    	}
+        }
     }
 
     @Override
     public void drawGuiContainerBackgroundLayer(float i, int j, int k)
-    {    	
+    {
         super.drawGuiContainerForegroundLayer(j, k);
 
         for(StorageInfo.Type type : StorageInfo.Type.values())
@@ -200,46 +200,46 @@ public class GuiChestBuilder extends GuiContainer
                 drawTab(type, type.display);
             }
         }
-        
-        RenderHelper.disableStandardItemLighting();
-        GL11.glColor3f(1, 1, 1); 
-        
-    	drawTexturedModalRect(guiLeft, guiTop, 0, 0, 7, 7);
 
-    	RenderUtil.renderBackground(this, guiLeft, guiTop, 162, 14 + 15 + 15 + 15 + 36);
+        RenderHelper.disableStandardItemLighting();
+        GL11.glColor3f(1, 1, 1);
+
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, 7, 7);
+
+        UsefulFunctions.renderBackground(this, guiLeft, guiTop, 162, 14 + 15 + 15 + 15 + 36);
 
         int slotX = guiLeft + (xSize / 2) - ((9 * 18) / 2);
         int slotY = guiTop + 7 + 108 + 10;
 
-        RenderUtil.renderSlots(slotX, slotY, 9, 3);
+        UsefulFunctions.renderSlots(slotX, slotY, 9, 3);
 
         slotY = slotY + (3 * 18) + 4;
 
-        RenderUtil.renderSlots(slotX, slotY, 9, 1);
-        
+        UsefulFunctions.renderSlots(slotX, slotY, 9, 1);
+
         slotY = guiTop + 50 + 12;
         slotX = guiLeft + ((xSize / 2) - 36);
-        
-        RenderUtil.renderSlots(slotX, slotY, 4, 1);
-        
+
+        UsefulFunctions.renderSlots(slotX, slotY, 4, 1);
+
         slotY = slotY + 20;
 
-        RenderUtil.renderSlots(slotX, slotY, 4, 1);
+        UsefulFunctions.renderSlots(slotX, slotY, 4, 1);
 
-        RenderUtil.renderSlots(guiLeft + 5 + xSize - 30, guiTop + 8 + 108 - 13, 1, 1);
+        UsefulFunctions.renderSlots(guiLeft + 5 + xSize - 30, guiTop + 8 + 108 - 13, 1, 1);
 
         GL11.glColor3f(1, 1, 1);
-        
+
         StorageInfo info = builder.info;
-        
+
         if(info == null)
         {
-        	return;
+            return;
         }
 
         slotY = guiTop + 50 + 12;
         slotX = guiLeft + ((xSize / 2) - 36);
-        
+
         for(int x = 0; x < info.getMaterialCost().size(); x++)
         {
             ItemStack stack = info.getMaterialCost().get(x);
@@ -248,7 +248,6 @@ public class GuiChestBuilder extends GuiContainer
 
             RenderHelper.enableGUIStandardItemLighting();
             itemRender.renderItemIntoGUI(stack, slotX + 1 + (x * 18), slotY + 1);
-            
             RenderHelper.disableStandardItemLighting();
         }
 
@@ -264,22 +263,22 @@ public class GuiChestBuilder extends GuiContainer
     @Override
     public void actionPerformed(GuiButton button) throws IOException
     {
-    	super.actionPerformed(button);
+        super.actionPerformed(button);
         StorageInfo info = new StorageInfo(builder.info.getSizeX(), builder.info.getSizeY(), builder.info.getHue(), builder.info.getType());
 
-    	switch(button.id)
-    	{
-    		case 4:
-    		{
-    			CompactStorage.instance.wrapper.sendToServer(new C02PacketCraftChest(pos, builder.dimension, info));
-    			
-    			break;
-    		}
+        switch(button.id)
+        {
+            case 4:
+            {
+                CompactStorage.instance.wrapper.sendToServer(new C02PacketCraftChest(pos, builder.dimension, info));
+
+                break;
+            }
             default:
             {
                 break;
             }
-    	}
+        }
     }
 
     /**

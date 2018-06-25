@@ -1,8 +1,8 @@
 package com.tattyseal.compactstorage.client.gui;
 
-import com.tattyseal.compactstorage.api.IChest;
+import com.tattyseal.compactstorage.inventory.IChest;
 import com.tattyseal.compactstorage.inventory.InventoryBackpack;
-import com.tattyseal.compactstorage.util.RenderUtil;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
@@ -88,11 +88,11 @@ public class GuiChest extends GuiContainer
     	GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glColor3f(1, 1, 1);
         
-        RenderUtil.renderChestBackground(this, guiLeft, guiTop, invX, invY);
+        UsefulFunctions.renderChestBackground(this, guiLeft, guiTop, invX, invY);
 
-        RenderUtil.renderSlots(guiLeft + 7 + ((Math.max(9, invX) * 18) / 2) - (invX * 18) / 2, guiTop + 17, invX, invY);
-        RenderUtil.renderSlots(guiLeft + 7 + ((((Math.max(9, invX)) * 18) / 2) - ((9 * 18) / 2)), guiTop + 17 + (invY * 18) + 13, 9, 3);
-        RenderUtil.renderSlots(guiLeft + 7 + ((((Math.max(9, invX)) * 18) / 2) - ((9 * 18) / 2)), guiTop + 17 + (invY * 18) + 13 + 54 + 4, 9, 1);
+        UsefulFunctions.renderSlots(guiLeft + 7 + ((Math.max(9, invX) * 18) / 2) - (invX * 18) / 2, guiTop + 17, invX, invY);
+        UsefulFunctions.renderSlots(guiLeft + 7 + ((((Math.max(9, invX)) * 18) / 2) - ((9 * 18) / 2)), guiTop + 17 + (invY * 18) + 13, 9, 3);
+        UsefulFunctions.renderSlots(guiLeft + 7 + ((((Math.max(9, invX)) * 18) / 2) - ((9 * 18) / 2)), guiTop + 17 + (invY * 18) + 13 + 54 + 4, 9, 1);
 
         GL11.glPopMatrix();
     }

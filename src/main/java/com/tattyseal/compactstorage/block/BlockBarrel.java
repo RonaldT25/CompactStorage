@@ -3,14 +3,12 @@ package com.tattyseal.compactstorage.block;
 import com.tattyseal.compactstorage.CompactStorage;
 import com.tattyseal.compactstorage.tileentity.IBarrel;
 import com.tattyseal.compactstorage.tileentity.TileEntityBarrel;
-import com.tattyseal.compactstorage.util.EntityUtil;
-import com.tattyseal.compactstorage.util.LogHelper;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -74,7 +72,7 @@ public class BlockBarrel extends Block implements ITileEntityProvider
     {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
 
-        worldIn.setBlockState(pos, state.withProperty(FACING, EntityUtil.get2dOrientation(placer)));
+        worldIn.setBlockState(pos, state.withProperty(FACING, UsefulFunctions.get2dOrientation(placer)));
     }
 
     @Override

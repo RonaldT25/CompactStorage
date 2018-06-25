@@ -1,10 +1,8 @@
 package com.tattyseal.compactstorage.tileentity;
 
-import com.tattyseal.compactstorage.util.LogHelper;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -48,7 +46,7 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
 
             if(stackSize > amount)
             {
-                LogHelper.dump("stack size was > maxStackSize");
+                UsefulFunctions.dump("stack size was > maxStackSize");
 
                 stack.setCount(amount);
 
@@ -57,7 +55,7 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
             }
             else
             {
-                LogHelper.dump("stack size was < maxStackSize, stacksize was " + stackSize);
+                UsefulFunctions.dump("stack size was < maxStackSize, stacksize was " + stackSize);
 
                 stack.setCount(stackSize);
 
@@ -73,7 +71,7 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
         }
         else
         {
-            LogHelper.dump("No items inside!");
+            UsefulFunctions.dump("No items inside!");
         }
 
         markDirty();
@@ -91,11 +89,11 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
     {
         ItemStack workingStack = stack.copy();
 
-        LogHelper.dump("starting method");
+        UsefulFunctions.dump("starting method");
 
         if(item.isEmpty() && !workingStack.isEmpty())
         {
-            LogHelper.dump("item was empty, setting item to stack, stack size was " + item.getCount());
+            UsefulFunctions.dump("item was empty, setting item to stack, stack size was " + item.getCount());
 
             if(!simulate)
             {
@@ -113,7 +111,7 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
         {
             if(!workingStack.isEmpty() && ItemStack.areItemsEqual(workingStack, item) && stackSize < getMaxStorage())
             {
-                LogHelper.dump("stack was not null, the items were equal and storage was less than max");
+                UsefulFunctions.dump("stack was not null, the items were equal and storage was less than max");
 
                 if(!simulate)
                     stackSize += workingStack.getCount();
@@ -126,7 +124,7 @@ public class TileEntityBarrel extends TileEntity implements IBarrel
             }
             else
             {
-                LogHelper.dump(String.format("error inserting, stack was empty = %b, items are equal = %b, stackSize was less than %d = %b", stack.isEmpty(), ItemStack.areItemsEqual(stack, item), getMaxStorage(), stackSize < getMaxStorage()));
+                UsefulFunctions.dump(String.format("error inserting, stack was empty = %b, items are equal = %b, stackSize was less than %d = %b", stack.isEmpty(), ItemStack.areItemsEqual(stack, item), getMaxStorage(), stackSize < getMaxStorage()));
             }
         }
 

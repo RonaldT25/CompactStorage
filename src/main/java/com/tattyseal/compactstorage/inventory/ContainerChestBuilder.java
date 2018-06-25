@@ -57,7 +57,7 @@ public class ContainerChestBuilder extends Container
     private void setupSlots()
     {
         int slotY =  50 + 12;
-        int slotX = ((xSize / 2) - 36);
+        int slotX = 5;
 
         for(int x = 0; x < 4; x++)
         {

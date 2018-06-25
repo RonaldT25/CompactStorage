@@ -3,8 +3,8 @@ package com.tattyseal.compactstorage.network.handler;
 import com.tattyseal.compactstorage.CompactStorage;
 import com.tattyseal.compactstorage.network.packet.C02PacketCraftChest;
 import com.tattyseal.compactstorage.tileentity.TileEntityChestBuilder;
-import com.tattyseal.compactstorage.util.LogHelper;
 import com.tattyseal.compactstorage.util.StorageInfo;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -39,7 +39,7 @@ public class C02HandlerCraftChest implements IMessageHandler<C02PacketCraftChest
 					return;
 				}
 
-				LogHelper.dump(builder.info.getType().name);
+				UsefulFunctions.dump(builder.info.getType().name);
 
 				ItemStack[] itemsArray = new ItemStack[4];
 
@@ -73,7 +73,7 @@ public class C02HandlerCraftChest implements IMessageHandler<C02PacketCraftChest
 					}
 				}
 
-				LogHelper.dump("HAS REQ MATS: " + hasRequiredMaterials);
+				UsefulFunctions.dump("HAS REQ MATS: " + hasRequiredMaterials);
 
 				if(hasRequiredMaterials && builder.getStackInSlot(4).isEmpty())
 				{
@@ -86,13 +86,13 @@ public class C02HandlerCraftChest implements IMessageHandler<C02PacketCraftChest
 
 					builder.setInventorySlotContents(4, stack);
 
-					LogHelper.dump("SPAWNED ITEM ENTITY");
+					UsefulFunctions.dump("SPAWNED ITEM ENTITY");
 
 					for(int x = 0; x < requiredItems.size(); x++)
 					{
 						builder.decrStackSize(x, requiredItems.get(x).getCount());
 
-						LogHelper.dump("DECREASED ITEMS IN INVENTORY");
+						UsefulFunctions.dump("DECREASED ITEMS IN INVENTORY");
 					}
 
 					world.playSound(null, builder.getPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT, 1, 1);

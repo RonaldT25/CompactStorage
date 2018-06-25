@@ -1,7 +1,7 @@
 package com.tattyseal.compactstorage;
 
 import com.google.common.collect.Lists;
-import com.tattyseal.compactstorage.exception.InvalidConfigurationException;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -116,7 +116,7 @@ public class ConfigurationHandler
 
         if(item == null)
         {
-            new InvalidConfigurationException("Could not find item " + itemName + " for value " + name + " in the CompactStorage config! Reverting to default.").printStackTrace();
+            UsefulFunctions.dump("Could not find item " + itemName + " for value " + name + " in the CompactStorage config! Reverting to default.");
 
 
             modId = defaultString.contains(":") ? defaultString.split(":", 2)[0] : "minecraft";
@@ -166,7 +166,7 @@ public class ConfigurationHandler
 
             if(item == null)
             {
-                new InvalidConfigurationException("Could not find item " + itemName + " for value " + key + " in the CompactStorage config! Reverting to default.").printStackTrace();
+                UsefulFunctions.dump("Could not find item " + itemName + " for value " + key + " in the CompactStorage config! Reverting to default.");
                 breakOff = true;
                 break;
             }

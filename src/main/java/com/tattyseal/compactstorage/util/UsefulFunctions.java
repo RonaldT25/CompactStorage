@@ -1,22 +1,129 @@
 package com.tattyseal.compactstorage.util;
 
+import com.tattyseal.compactstorage.CompactStorage;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.model.ModelLoader;
 
-public class RenderUtil
+import java.awt.*;
+
+public class UsefulFunctions
 {
     public static final ResourceLocation slotTexture = new ResourceLocation("compactstorage", "textures/gui/chestslots.png");
     public static final ResourceLocation backgroundTexture = new ResourceLocation("compactstorage", "textures/gui/chest.png");
-    
+
+    private static final Minecraft mc = Minecraft.getMinecraft();
+
     private static double slotTextureWidth = 432d;
     private static double slotTextureHeight = 216d;
     private static double chestTextureSize = 15d;
 
-    private static final Minecraft mc = Minecraft.getMinecraft();
+    /**
+     * Entity Utils
+     */
+
+    public static EnumFacing get2dOrientation(EntityLivingBase entityliving)
+    {
+        EnumFacing[] orientationTable = {EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.EAST};
+        int orientationIndex = MathHelper.floor((entityliving.rotationYaw + 45.0) / 90.0) & 3;
+
+        return orientationTable[orientationIndex];
+    }
+
+    /**
+     * Model Registration Cleanup
+     */
+
+    public static void registerItem(Item item, int metadata, String itemName)
+    {
+        ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(itemName, "inventory"));
+    }
+
+    public static void registerChest()
+    {
+        Item chestItem = Item.getItemFromBlock(CompactStorage.ModBlocks.chest);
+        ModelLoader.setCustomModelResourceLocation(chestItem, 0, new ModelResourceLocation("compactstorage:compactchest", "inventory"));
+    }
+
+    public static void registerBlock(Block block, int metadata, String blockName)
+    {
+        registerItem(Item.getItemFromBlock(block), metadata, blockName);
+    }
+
+    /**
+     * Log helper
+     */
+
+    public static void dump(String string)
+    {
+        System.out.println("CompactStorage: " + string);
+    }
+
+    /**
+     * Helper for Colours
+     */
+
+    public static int getColorFromHue(int hue)
+    {
+        Color color = (hue == -1 ? Color.white : Color.getHSBColor(hue / 360f, 0.5f, 0.5f).brighter());
+        return color.getRGB();
+    }
+
+    public static int getColorFromNBT(ItemStack stack)
+    {
+        NBTTagCompound tag = stack.getTagCompound();
+
+        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("hue"))
+        {
+            int hue = stack.getTagCompound().getInteger("hue");
+            return getColorFromHue(hue);
+        }
+
+        if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("hue") && stack.getTagCompound().hasKey("color"))
+        {
+            String color = "";
+
+            if(tag.getTag("color") instanceof NBTTagInt)
+            {
+                color = String.format("#%06X", (0xFFFFFF & tag.getInteger("color")));
+            }
+            else
+            {
+                color = tag.getString("color");
+
+                if(color.startsWith("0x"))
+                {
+                    color = "#" + color.substring(2);
+                }
+            }
+
+            if(!color.isEmpty())
+            {
+                Color c = Color.decode(color);
+                float[] hsbVals = new float[3];
+
+                hsbVals = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsbVals);
+                tag.setInteger("hue", (int) (hsbVals[0] * 360));
+            }
+        }
+
+        return 0xFFFFFF;
+    }
+
+    /** Render util **/
 
     public static void renderSlots(int x, int y, int width, int height)
     {
@@ -33,8 +140,8 @@ public class RenderUtil
 
         worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldRenderer.pos(x, y + realHeight, 0).tex(0, uz).endVertex();
-        worldRenderer.pos(x + realWidth, y + realHeight, 0).tex(ux, uz).endVertex();//(1 / slotTextureWidth) * (width), (1 / slotTextureHeight) * (height));
-        worldRenderer.pos(x + realWidth, y, 0).tex(ux, 0).endVertex();//1 / slotTextureWidth) * (width), 0);
+        worldRenderer.pos(x + realWidth, y + realHeight, 0).tex(ux, uz).endVertex();
+        worldRenderer.pos(x + realWidth, y, 0).tex(ux, 0).endVertex();
         worldRenderer.pos(x, y, 0).tex(0, 0).endVertex();
         tessellator.draw();
     }

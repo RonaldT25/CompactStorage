@@ -1,6 +1,6 @@
 package com.tattyseal.compactstorage.inventory;
 
-import com.tattyseal.compactstorage.api.IChest;
+import com.tattyseal.compactstorage.inventory.slot.SlotImmovable;
 import com.tattyseal.compactstorage.tileentity.TileEntityChest;
 import invtweaks.api.container.ChestContainer;
 import net.minecraft.entity.player.EntityPlayer;

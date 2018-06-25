@@ -1,4 +1,4 @@
-package com.tattyseal.compactstorage.api;
+package com.tattyseal.compactstorage.inventory;
 
 import com.tattyseal.compactstorage.util.StorageInfo;
 import net.minecraft.inventory.IInventory;

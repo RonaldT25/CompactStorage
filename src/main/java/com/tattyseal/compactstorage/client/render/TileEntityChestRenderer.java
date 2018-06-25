@@ -1,11 +1,19 @@
 package com.tattyseal.compactstorage.client.render;
 
+import com.tattyseal.compactstorage.client.model.ModelCompactChest;
 import com.tattyseal.compactstorage.tileentity.TileEntityChest;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelChest;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -21,12 +29,32 @@ import java.awt.Color;
 @SideOnly(Side.CLIENT)
 public class TileEntityChestRenderer extends TileEntitySpecialRenderer<TileEntityChest>
 {
-    private ModelChest model;
+    private ModelCompactChest innerChestModel;
+    private ModelChest outerChestModel;
     private static final ResourceLocation texture = new ResourceLocation("compactstorage", "textures/models/chest.png");
+    private Minecraft mc;
 
     public TileEntityChestRenderer()
     {
-        this.model = new ModelChest();
+        this.innerChestModel = new ModelCompactChest();
+        this.outerChestModel = new ModelChest();
+        this.mc = Minecraft.getMinecraft();
+    }
+
+    public void renderStatic(TileEntityChest entity, float partialTicks) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0, 0, 0);
+        GlStateManager.scale(-1.0F, -1.0F, 1.0F);
+
+        GlStateManager.enableRescaleNormal();
+
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        mc.getTextureManager().bindTexture(new ResourceLocation("minecraft", "textures/blocks/stone.png"));
+        outerChestModel.render(null, 0f, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+        GlStateManager.disableBlend();
+
+        GlStateManager.popMatrix();
     }
 
     @Override
@@ -39,7 +67,17 @@ public class TileEntityChestRenderer extends TileEntitySpecialRenderer<TileEntit
 
         GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 
-        EnumFacing direction = tile.direction;
+        EnumFacing direction = EnumFacing.NORTH;
+        float f = 0;
+
+        if(tile != null)
+        {
+            direction = tile.direction;
+            f = tile.prevLidAngle + (tile.lidAngle - tile.prevLidAngle) * partialTicks;
+
+            f = 1.0F - f;
+            f = 1.0F - f * f * f;
+        }
 
         switch (direction)
         {
@@ -51,7 +89,22 @@ public class TileEntityChestRenderer extends TileEntitySpecialRenderer<TileEntit
 
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 
-        Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+        ResourceLocation texture = new ResourceLocation("compactstorage", "textures/models/chest_outer.png");
+
+        IBlockState state = Blocks.IRON_BLOCK.getDefaultState();
+
+        if(tile != null && tile.getStackInSlot(0) != null && !tile.getStackInSlot(0).isEmpty())
+        {
+            ItemStack stack = tile.getStackInSlot(0);
+
+            if(stack.getItem() instanceof ItemBlock)
+            {
+                state = Block.getBlockFromItem(stack.getItem()).getStateFromMeta(stack.getItemDamage());
+            }
+        }
+
+        TextureAtlasSprite s = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
+        ResourceLocation rl = new ResourceLocation(s.getIconName().split(":")[0], "textures/" + s.getIconName().split(":")[1] + ".png");
 
         int color;
 
@@ -69,17 +122,25 @@ public class TileEntityChestRenderer extends TileEntitySpecialRenderer<TileEntit
         float b = (float)(color & 255) / 255.0F;
         GL11.glColor4f(r, g, b, 1F);
 
-        float f = tile.prevLidAngle + (tile.lidAngle - tile.prevLidAngle) * partialTicks;
 
-        f = 1.0F - f;
-        f = 1.0F - f * f * f;
 
-        model.chestLid.rotateAngleX = -(f * ((float)Math.PI / 2F));
-        model.renderAll();
+        ModelCompactChest m = new ModelCompactChest();
+        outerChestModel.chestLid.rotateAngleX = -(f * ((float)Math.PI / 2F));
+        m.chestLid.rotateAngleX = -(f * ((float)Math.PI / 2F));
+
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+        outerChestModel.renderAll();
+
+        GL11.glPushMatrix();
+        GL11.glScalef(0.999f, 0.999f, 0.999f);
+        GL11.glTranslatef(0.0005f, 0.0005f, 0.0001f);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(rl);
+        m.renderAll(s.getIconWidth(), s.getIconHeight());
+        GL11.glPopMatrix();
 
         GL11.glColor3f(1f, 1f, 1f);
 
-        if(tile.getRetaining())
+        if(tile != null && tile.getRetaining())
         {
             ItemStack stack = new ItemStack(Items.DIAMOND, 1, 0);
             EntityItem item = new EntityItem(tile.getWorld(), 0D, 0D, 0D, stack);

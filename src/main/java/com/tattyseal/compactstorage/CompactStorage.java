@@ -1,5 +1,7 @@
 package com.tattyseal.compactstorage;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tattyseal.compactstorage.block.BlockBarrel;
 import com.tattyseal.compactstorage.block.BlockChest;
 import com.tattyseal.compactstorage.block.BlockChestBuilder;
@@ -9,7 +11,6 @@ import com.tattyseal.compactstorage.client.render.TileEntityBarrelRenderer;
 import com.tattyseal.compactstorage.client.render.TileEntityChestRenderer;
 import com.tattyseal.compactstorage.creativetabs.CreativeTabCompactStorage;
 import com.tattyseal.compactstorage.event.CompactStorageEventHandler;
-import com.tattyseal.compactstorage.event.ConnectionHandler;
 import com.tattyseal.compactstorage.item.ItemBackpack;
 import com.tattyseal.compactstorage.item.ItemBlockChest;
 import com.tattyseal.compactstorage.network.handler.C01HandlerUpdateBuilder;
@@ -21,26 +22,17 @@ import com.tattyseal.compactstorage.tileentity.TileEntityBarrel;
 import com.tattyseal.compactstorage.tileentity.TileEntityBarrelFluid;
 import com.tattyseal.compactstorage.tileentity.TileEntityChest;
 import com.tattyseal.compactstorage.tileentity.TileEntityChestBuilder;
-import com.tattyseal.compactstorage.util.LogHelper;
-import com.tattyseal.compactstorage.util.ModelUtil;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.color.IBlockColor;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -50,6 +42,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -61,8 +54,8 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
-import java.awt.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Toby on 06/11/2014.
@@ -81,6 +74,9 @@ public class CompactStorage
     public static final CreativeTabs tabCS = new CreativeTabCompactStorage();
     public static final Logger logger = LogManager.getLogger("CompactStorage");
     public SimpleNetworkWrapper wrapper;
+
+    public static Map<String, IBlockState> fullBlocks;
+    public static List<ItemStack> stairItems;
     
     public static final String ID = "compactstorage";
 
@@ -151,14 +147,14 @@ public class CompactStorage
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBarrel.class, new TileEntityBarrelRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBarrelFluid.class, new TileEntityBarrelFluidRenderer());
 
-        ModelUtil.registerChest();
-        ModelUtil.registerBlock(ModBlocks.chestBuilder, 0, "compactstorage:chestBuilder");
+        UsefulFunctions.registerChest();
+        UsefulFunctions.registerBlock(ModBlocks.chestBuilder, 0, "compactstorage:chestBuilder");
 
-        ModelUtil.registerItem(ModItems.itemBlockBarrel, 0, "compactstorage:barrel");
-        ModelUtil.registerItem(ModItems.itemBlockBarrel_fluid, 0, "compactstorage:barrel_fluid");
+        UsefulFunctions.registerItem(ModItems.itemBlockBarrel, 0, "compactstorage:barrel");
+        UsefulFunctions.registerItem(ModItems.itemBlockBarrel_fluid, 0, "compactstorage:barrel_fluid");
 
-        ModelUtil.registerBlock(ModBlocks.chest, 0, "compactstorage:compactchest");
-        ModelUtil.registerItem(ModItems.backpack, 0, "compactstorage:backpack");
+        UsefulFunctions.registerBlock(ModBlocks.chest, 0, "compactstorage:compactchest");
+        UsefulFunctions.registerItem(ModItems.backpack, 0, "compactstorage:backpack");
 
     }
 
@@ -177,8 +173,6 @@ public class CompactStorage
         wrapper.registerMessage(C02HandlerCraftChest.class, C02PacketCraftChest.class, 1, Side.SERVER);
 
         ConfigurationHandler.configFile = event.getSuggestedConfigurationFile();
-
-        MinecraftForge.EVENT_BUS.register(new ConnectionHandler());
     }
 
     @Mod.EventHandler
@@ -200,50 +194,41 @@ public class CompactStorage
         ConfigurationHandler.init();
     }
 
-    public static int getColorFromHue(int hue)
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event)
     {
-        Color color = (hue == -1 ? Color.white : Color.getHSBColor(hue / 360f, 0.5f, 0.5f).brighter());
-        return color.getRGB();
-    }
+        if(fullBlocks == null)
+            fullBlocks = Maps.newHashMap();
 
-    public static int getColorFromNBT(ItemStack stack)
-    {
-        NBTTagCompound tag = stack.getTagCompound();
+        if(stairItems == null)
+            stairItems = Lists.newArrayList();
 
-        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("hue"))
-        {
-            int hue = stack.getTagCompound().getInteger("hue");
-            return getColorFromHue(hue);
-        }
+        stairItems.clear();
+        fullBlocks.clear();
+        ForgeRegistries.BLOCKS.getEntries().forEach((entry) -> {
+            // get the block
+            Block b = entry.getValue();
 
-        if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("hue") && stack.getTagCompound().hasKey("color"))
-        {
-            String color = "";
+            //get sub states
+            NonNullList<ItemStack> subBlocks = NonNullList.create();
+            b.getSubBlocks(null, subBlocks);
 
-            if(tag.getTag("color") instanceof NBTTagInt)
-            {
-                color = String.format("#%06X", (0xFFFFFF & tag.getInteger("color")));
-            }
-            else
-            {
-                color = tag.getString("color");
+            //convert the meta to block states
+            NonNullList<IBlockState> states = NonNullList.create();
+            subBlocks.forEach((stack) -> {
+                states.add(b.getStateFromMeta(stack.getItemDamage()));
+            });
 
-                if(color.startsWith("0x"))
+            //add states to list
+            states.forEach((state) -> {
+                if(state.isFullBlock() && !b.hasTileEntity(state))
                 {
-                    color = "#" + color.substring(2);
+                    ItemStack stack = new ItemStack(b, 1, b.getMetaFromState(state));
+
+                    stairItems.add(stack);
+                    fullBlocks.put(state.toString(), state);
                 }
-            }
-
-            if(!color.isEmpty())
-            {
-                Color c = Color.decode(color);
-                float[] hsbVals = new float[3];
-
-                hsbVals = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsbVals);
-                tag.setInteger("hue", (int) (hsbVals[0] * 360));
-            }
-        }
-
-        return 0xFFFFFF;
+            });
+        });
     }
 }

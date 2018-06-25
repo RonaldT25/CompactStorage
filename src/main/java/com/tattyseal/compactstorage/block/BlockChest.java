@@ -1,10 +1,8 @@
 package com.tattyseal.compactstorage.block;
 
 import com.tattyseal.compactstorage.CompactStorage;
-import com.tattyseal.compactstorage.exception.InvalidSizeException;
 import com.tattyseal.compactstorage.tileentity.TileEntityChest;
-import com.tattyseal.compactstorage.util.EntityUtil;
-import com.tattyseal.compactstorage.util.LogHelper;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -89,7 +87,7 @@ public class BlockChest extends Block implements ITileEntityProvider
             chest.setCustomName(stack.getDisplayName());
         }
 
-        chest.direction = EntityUtil.get2dOrientation(entity);
+        chest.direction = UsefulFunctions.get2dOrientation(entity);
         
         if(stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
         {
@@ -137,8 +135,7 @@ public class BlockChest extends Block implements ITileEntityProvider
                     chest.setHue(180);
                     chest.color = Color.white;
 
-        			InvalidSizeException exception = new InvalidSizeException("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
-        			exception.printStackTrace();
+        			UsefulFunctions.dump("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
         		}
         	}
         }
@@ -214,7 +211,7 @@ public class BlockChest extends Block implements ITileEntityProvider
     @Override
     public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state)
     {
-        LogHelper.dump("breakBlock()");
+        UsefulFunctions.dump("breakBlock()");
         TileEntityChest chest = (TileEntityChest) world.getTileEntity(pos);
 
         if(chest != null)

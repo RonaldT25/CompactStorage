@@ -1,4 +1,4 @@
-package com.tattyseal.compactstorage.client.gui.elements;
+package com.tattyseal.compactstorage.client.gui.slider;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiPageButtonList;

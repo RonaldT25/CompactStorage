@@ -5,4 +5,4 @@ CompactStorage
 
 CompactStorage is a minecraft mod that allows you to make Chests and Backpacks of custom sizes using the Builder.
 
-####[CurseForge](http://minecraft.curseforge.com/mc-mods/223703-compactstorage)
+####[CurseForge](http://minecraft.curseforge.com/mc-recipes/223703-compactstorage)

@@ -1,7 +1,7 @@
 package com.tattyseal.compactstorage.item;
 
 import com.tattyseal.compactstorage.CompactStorage;
-import com.tattyseal.compactstorage.exception.InvalidSizeException;
+import com.tattyseal.compactstorage.util.UsefulFunctions;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -60,9 +60,8 @@ public class ItemBlockChest extends ItemBlock
     			list.add(TextFormatting.RED + "Yep. You broke it.");
 
                 stack.getTagCompound().setIntArray("size", new int[] {9, 3});
-    			
-    			InvalidSizeException exception = new InvalidSizeException("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
-    			exception.printStackTrace();
+
+				UsefulFunctions.dump("You tried to pass off a " + stack.getTagCompound().getTag("size").getClass().getName() + " as a Integer Array. Do not report this or you will be ignored. This is a user based error.");
     		}
 
 

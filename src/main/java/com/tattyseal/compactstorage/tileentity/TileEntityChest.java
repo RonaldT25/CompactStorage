@@ -1,7 +1,7 @@
 package com.tattyseal.compactstorage.tileentity;
 
 import com.tattyseal.compactstorage.ConfigurationHandler;
-import com.tattyseal.compactstorage.api.IChest;
+import com.tattyseal.compactstorage.inventory.IChest;
 import com.tattyseal.compactstorage.block.BlockChest;
 import com.tattyseal.compactstorage.util.StorageInfo;
 import net.minecraft.block.state.IBlockState;

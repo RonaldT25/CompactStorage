@@ -1,6 +1,6 @@
 package com.tattyseal.compactstorage;
 
-import com.tattyseal.compactstorage.api.IChest;
+import com.tattyseal.compactstorage.inventory.IChest;
 import com.tattyseal.compactstorage.client.gui.GuiChest;
 import com.tattyseal.compactstorage.client.gui.GuiChestBuilder;
 import com.tattyseal.compactstorage.inventory.ContainerChest;

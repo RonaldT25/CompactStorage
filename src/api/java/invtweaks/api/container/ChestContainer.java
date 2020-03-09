@@ -11,8 +11,10 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ChestContainer {
-    // Set to true if the Inventory Tweaks sorting buttons should be shown for this container.
+
+
+void setdetail()               {
+ // Set to true if the Inventory Tweaks sorting buttons should be shown for this container.
     boolean showButtons() default true;
 
     // Size of a chest row
@@ -20,8 +22,16 @@ public @interface ChestContainer {
 
     // Uses 'large chest' mode for sorting buttons
     // (Renders buttons vertically down the right side of the GUI)
-    boolean isLargeChest() default false;
+    boolean isLargeChest() default false;   
+    
+    
+ }
 
+
+
+public @interface ChestContainer {
+    
+    setdetail()   
     // Annotation for method to get size of a chest row if it is not a fixed size for this container class
     // Signature int func()
     @Retention(RetentionPolicy.RUNTIME)
